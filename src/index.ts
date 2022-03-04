@@ -3,6 +3,7 @@ import {
 	BackgroundMode,
 	BlinnPhongMaterial,
 	Camera,
+	DirectLight,
 	Engine,
 	Entity,
 	MeshRenderer,
@@ -36,6 +37,12 @@ export async function createOasis() {
 	// init light
 	scene.ambientLight.diffuseSolidColor.setValue(1, 1, 1, 1);
 	scene.ambientLight.diffuseIntensity = 1.2;
+	
+	// // 添加方向光
+	// const directEntity = rootEntity.createChild("direct-light");
+	// const directLight = directEntity.addComponent(DirectLight);
+	// directLight.color.setValue(0, 1, 0, 1);
+
 
 	// 添加镜头控制器
 	cameraEntity.addComponent(OrbitControl);
@@ -43,18 +50,21 @@ export async function createOasis() {
 	// // init cube
 	// const cubeEntity = rootEntity.createChild("cube");
 	// const renderer = cubeEntity.addComponent(MeshRenderer);
+	// renderer.mesh = PrimitiveMesh.createCuboid(engine, 2, 2, 2);
 	// const mtl = new BlinnPhongMaterial(engine);
-	// const color = mtl.baseColor;
-	// color.r = 0.0;
-	// color.g = 0.8;
-	// color.b = 0.5;
-	// color.a = 1.0;
-	// renderer.mesh = PrimitiveMesh.createCuboid(engine);
+	// // mtl.baseColor.setValue(0, 0.8, 0.5 , 1);
+	// // mtl.baseColor.setValue(1, 0, 0 , 1);
 	// renderer.setMaterial(mtl);
+
+	// // // transform 使用
+	// // const cubeTransform = cubeEntity.transform;
+	// // cubeTransform.setPosition(4, 2, 0);
+	// // // cubeTransform.setRotation(0, 45, 0);
+	// // // cubeTransform.setScale(2, 2, 2);
 
 	// // 加载纹理
 	// const cubeTex = await engine.resourceManager.load<Texture2D>({
-	// 	url: "https://gw.alipayobjects.com/mdn/rms_37b9d9/afts/img/A*gSgLRpgkvEQAAAAAAAAAAAAAARQnAQ",
+	// 	url: "https://gw.alipayobjects.com/mdn/rms_7c464e/afts/img/A*ArCHTbfVPXUAAAAAAAAAAAAAARQnAQ",
 	// 	type: AssetType.Texture2D
 	// });
 	// mtl.baseTexture = cubeTex;
@@ -69,14 +79,14 @@ export async function createOasis() {
 	createSun(engine, solarSystem);
 
 	// 创建火星
-	createPlanet(engine, solarSystem, 1, 0.2, "https://gw.alipayobjects.com/mdn/rms_37b9d9/afts/img/A*4A66QZ8LtGcAAAAAAAAAAAAAARQnAQ");
+	createPlanet(engine, solarSystem, 1, 0.2, "https://gw.alipayobjects.com/mdn/rms_37b9d9/afts/img/A*4A66QZ8LtGcAAAAAAAAAAAAAARQnAQ", 0.0024);
 
 	// 创建地月子系统
 	const earthSystem = solarSystem.createChild("earth_system");
 	earthSystem.transform.setPosition(2, 0, 0);
 	earthSystem.addComponent(MyRevolutionComponent);
 
-	createPlanet(engine, earthSystem, 0, 0.25, "https://gw.alipayobjects.com/mdn/rms_37b9d9/afts/img/A*gSgLRpgkvEQAAAAAAAAAAAAAARQnAQ");
+	createPlanet(engine, earthSystem, 0, 0.25, "https://gw.alipayobjects.com/mdn/rms_37b9d9/afts/img/A*gSgLRpgkvEQAAAAAAAAAAAAAARQnAQ", 0.0029);
   createPlanet(engine, earthSystem, 0.6, 0.1, "https://gw.alipayobjects.com/mdn/rms_37b9d9/afts/img/A*moYmRYhxitQAAAAAAAAAAAAAARQnAQ");
 
 	engine.run();
@@ -124,7 +134,7 @@ async function createSun(engine: Engine, parent: Entity) {
 	return sunEntity;
 }
 
-async function createPlanet(engine: Engine, parent: Entity, distance: number, radius: number, url: string) {
+async function createPlanet(engine: Engine, parent: Entity, distance: number, radius: number, url: string, speed: number = 0.001) {
 	// 创建行星的实体对象
 	const planetEntity = parent.createChild("planet");
 	planetEntity.transform.setPosition(distance, 0, 0);
@@ -138,7 +148,8 @@ async function createPlanet(engine: Engine, parent: Entity, distance: number, ra
 	// 添加“自转”组件
 	planetEntity.addComponent(MyRotationComponent);
 	// 添加“公转”组件
-	planetEntity.addComponent(MyRevolutionComponent);
+	const revolution = planetEntity.addComponent(MyRevolutionComponent);
+	revolution.speed = speed;
 	return planetEntity;
 }
 
@@ -159,3 +170,4 @@ async function createMaterial(engine: Engine, isUnlit: boolean, url: string) {
 	return material;
 }
 
+createOasis();
